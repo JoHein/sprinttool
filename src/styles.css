@@ -1,1 +1,54 @@
 /* You can add global styles to this file, and also import other style files */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  /* display: none; <- Crashes Chrome on hover */
+  -webkit-appearance: none;
+  margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+body{
+  font-family: "Roboto", "Trebuchet MS", Arial, Helvetica, sans-serif;
+  margin:0;
+  background-color: #EEF2F6;
+}
+
+.topbar{
+  background-color: #39a3f4;
+  padding-left:30px;
+  height: 50px;
+  box-sizing: border-box;
+  position: fixed;
+  top: 0px;
+  width: 100%;
+  z-index: 102;
+  -webkit-box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  text-align: left;
+  -webkit-box-shadow:0 2px 4px 0px rgba(0, 0, 0, 0.3);
+  display: block;
+}
+
+h2{
+  font-family: "Roboto", "Trebuchet MS", Arial, Helvetica, sans-serif;
+  margin-top:10px;
+  color: white;
+}
+
+td{
+  text-align: center;
+}
+
+.ui-card-body {
+  padding: 1em;
+  height: 100%;
+}
+
+.ui-card-content {
+  line-height: 1.5;
+  height: 100%;
+}
+body > app-root > div > div > div > div > div.ui-g-7 > p-card > div > div > div > p-chart > div{
+  height: 100%;
+}
+body > app-root > div > div > div > div > div.ui-g-8 > p-card > div > div > div > p-chart > div{
+  height: 100%;
+}

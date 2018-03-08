@@ -1,20 +1,149 @@
 <!--The content below is only a placeholder and can be replaced.-->
-<div style="text-align:center">
-  <h1>
-    Welcome to {{ title }}!
-  </h1>
-  <img width="300" alt="Angular Logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNTAgMjUwIj4KICAgIDxwYXRoIGZpbGw9IiNERDAwMzEiIGQ9Ik0xMjUgMzBMMzEuOSA2My4ybDE0LjIgMTIzLjFMMTI1IDIzMGw3OC45LTQzLjcgMTQuMi0xMjMuMXoiIC8+CiAgICA8cGF0aCBmaWxsPSIjQzMwMDJGIiBkPSJNMTI1IDMwdjIyLjItLjFWMjMwbDc4LjktNDMuNyAxNC4yLTEyMy4xTDEyNSAzMHoiIC8+CiAgICA8cGF0aCAgZmlsbD0iI0ZGRkZGRiIgZD0iTTEyNSA1Mi4xTDY2LjggMTgyLjZoMjEuN2wxMS43LTI5LjJoNDkuNGwxMS43IDI5LjJIMTgzTDEyNSA1Mi4xem0xNyA4My4zaC0zNGwxNy00MC45IDE3IDQwLjl6IiAvPgogIDwvc3ZnPg==">
-</div>
-<h2>Here are some links to help you start: </h2>
-<ul>
-  <li>
-    <h2><a target="_blank" rel="noopener" href="https://angular.io/tutorial">Tour of Heroes</a></h2>
-  </li>
-  <li>
-    <h2><a target="_blank" rel="noopener" href="https://github.com/angular/angular-cli/wiki">CLI Documentation</a></h2>
-  </li>
-  <li>
-    <h2><a target="_blank" rel="noopener" href="https://blog.angular.io/">Angular blog</a></h2>
-  </li>
-</ul>
 
+<div class="container">
+
+
+  <div class="ui-g">
+    <div class="ui-g-12 ui-g-nopad">
+      <div class="ui-g">
+        <div class="ui-g-5">
+          <p-card [style]="{float: 'left', width: '100%', height: '100%'}">
+
+          <button *ngIf="!started" pButton type="button" label="Start" icon="fa-check" (click)="initSprint()"
+                  class="ui-button-info" iconPos="left" style="margin-bottom: 1em;"></button>
+          <button *ngIf="started" pButton type="button" label="Finish" icon="fa-rocket" (click)="finishSprint()"
+                  class="ui-button-info" iconPos="left" style="margin-bottom: 1em;"></button>
+
+          <p-growl [(value)]="msgs"></p-growl>
+
+          <p-table [value]="projectList" rowHover="true">
+
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Nb weeks
+                </th>
+                <th>Start </th>
+                <th>End </th>
+                <th>Days left </th>
+              </tr>
+              <tr>
+                <th>
+                  <span *ngIf="!started; then inputNbrWeeks else dataNbrWeeks"></span>
+                  <ng-template #inputNbrWeeks><input type="text" [(ngModel)]="nbrWeeks" placeholder="Nb weeks" style="width: 100%;"></ng-template>
+                  <ng-template #dataNbrWeeks>{{nbrWeeks}}</ng-template>
+                </th>
+                <th>{{startDate | date:'longDate':'':'fr'}}</th>
+                <th>{{endDate | date:'longDate':'':'fr'}}</th>
+                <th>{{daysLeft}}</th>
+              </tr>
+              <tr>
+                <th>Projects
+                  <span *ngIf="!started; then inputNbrProjects else dataNbrProjects"></span>
+                  <ng-template #inputNbrProjects><input type="text" style="width: 100%;" [(ngModel)]="nbrProjects" placeholder="Nb projects"></ng-template>
+                  <ng-template #dataNbrProjects>{{nbrProjects}}</ng-template>
+                <th>Values</th>
+                <th>Add</th>
+                <th>Done</th>
+              </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-rowData>
+
+              <tr>
+                <span *ngIf="rowData.name==='Total'; then dataField else inputName"></span>
+                <ng-template #inputName>
+                  <td pEditableColumn style="height: 30px; cursor: pointer;">
+                    <p-cellEditor>
+                      <ng-template pTemplate="input" >
+                        <input [(ngModel)]="rowData.name" (input)="newNameProject()" type="text" placeholder="Name"/>
+                      </ng-template>
+                      <ng-template pTemplate="output">
+                        {{rowData.name}}
+                      </ng-template>
+                    </p-cellEditor>
+                  </td>
+                  <td pEditableColumn style="height: 30px; cursor: pointer;">
+                    <p-cellEditor>
+                      <ng-template pTemplate="input">
+                        <input [(ngModel)]="rowData.value" (input)="computeTotal()" type="number" placeholder="Value" value="{{rowData.value}}"/>
+                      </ng-template>
+                      <ng-template pTemplate="output">
+                        {{rowData.value}}
+                      </ng-template>
+                    </p-cellEditor>
+                  </td>
+                  <td pEditableColumn style="height: 30px; cursor: pointer;">
+                    <p-cellEditor>
+                      <ng-template pTemplate="input">
+                        <input [(ngModel)]="rowData.add" (input)="computeTotal()" type="number"  placeholder="Add" value="{{rowData.add}}"/>
+                      </ng-template>
+                      <ng-template pTemplate="output">
+                        {{rowData.add}}
+                      </ng-template>
+                    </p-cellEditor>
+                  </td>
+                  <td pEditableColumn style="height: 30px; cursor: pointer;">
+                    <p-cellEditor>
+                      <ng-template pTemplate="input" >
+                        <input [(ngModel)]="rowData.done" (input)="computeTotal()" type="number" placeholder="Done" value="{{rowData.done}}"/>
+                      </ng-template>
+                      <ng-template pTemplate="output">
+                        {{rowData.done}}
+                      </ng-template>
+                    </p-cellEditor>
+                  </td>
+
+                </ng-template>
+                <ng-template #dataField>
+                  <td >
+                    {{rowData.name}}
+                  </td>
+                  <td style="text-align: center">
+                    {{rowData.value}}
+                  </td>
+                  <td style="text-align: center">
+                    {{rowData.add}}
+                  </td>
+                  <td style="text-align: center">
+                    {{rowData.done}}
+                  </td>
+                </ng-template>
+              </tr>
+            </ng-template>
+
+            <ng-template pTemplate="summary" let-rowData>
+              <div style="text-align:left">
+                <button type="button" [disabled]="!started" pButton icon="fa-plus" (click)="showDialogToAdd()" label="Add"></button>
+              </div>
+            </ng-template>
+          </p-table>
+
+          <p-dialog header="Project Details" [(visible)]="displayDialog" [responsive]="true" showEffect="fade" [modal]="true" [width]="400">
+            <div class="ui-g ui-fluid" *ngIf="project">
+              <div class="ui-g-12">
+                <div class="ui-g-4">
+                  <label for="projectname">Name</label>
+                </div>
+                <div class="ui-g-8">
+                  <input pInputText id="projectname" [(ngModel)]="project.name" />
+                </div>
+              </div>
+            </div>
+            <p-footer>
+              <div class="ui-dialog-buttonpane ui-helper-clearfix">
+                <button type="button" pButton icon="fa-check" (click)="save()" label="Save"></button>
+              </div>
+            </p-footer>
+          </p-dialog>
+        </p-card>
+        </div>
+        <div class="ui-g-7">
+          <p-card  [style]="{float: 'right', width: '100%', height: '100%'}">
+          <p-chart type="line" [data]="data" [options]="options" ></p-chart>
+        </p-card>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

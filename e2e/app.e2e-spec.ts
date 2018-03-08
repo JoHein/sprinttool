@@ -1,6 +1,6 @@
 import { AppPage } from './app.po';
 
-describe('untitled App', () => {
+describe('sprinttool App', () => {
   let page: AppPage;
 
   beforeEach(() => {
