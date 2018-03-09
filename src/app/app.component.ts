@@ -168,7 +168,7 @@ export class AppComponent implements OnInit {
   daysCalc(): void {
 
     const newEndDate = new Date(this.endDate);
-    const newTodayDate = new Date('Mars 16, 2018');
+    const newTodayDate = new Date();
 
     const one_day = 1000 * 60 * 60 * 24;
 
