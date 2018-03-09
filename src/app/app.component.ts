@@ -29,71 +29,7 @@ export class AppComponent implements OnInit {
   dataDiffDoneAdd: any;
   options: any;
 
-  calcGraph(): void {
-  const dataLabels = [];
-  const valueLine = [];
 
-    console.log(this.totalWorkDays);
-    console.log(this.daysLeft);
-    const totalData = this.projectList.find(entry => entry.name === 'Total');
-    valueLine.push(totalData.value);
-
-    let tempValue = totalData.value;
-    const tempDone = totalData.done;
-    const tempAdd = totalData.add;
-
-    for (let i = this.totalWorkDays; i >= 0; i--) {
-
-      dataLabels.push(i);
-      tempValue = Math.floor(tempValue - (tempValue / i));
-      valueLine.push(tempValue);
-
-    }
-
-    const diffDoneAdd = (Number(totalData.value) + tempAdd) - tempDone;
-
-    console.log('dataDiff', this.dataDiffDoneAdd );
-
-    if (this.dataDiffDoneAdd === null || this.dataDiffDoneAdd === undefined) {
-      this.dataDiffDoneAdd = new Array(this.totalWorkDays - 1);
-      this.dataDiffDoneAdd.splice(this.daysLeft - this.totalWorkDays , 1, diffDoneAdd );
-      console.log('dataDiffDoneAdd', this.dataDiffDoneAdd);
-
-      localStorage.setItem('dataDiffDoneAdd', JSON.stringify(this.dataDiffDoneAdd));
-    } else {
-      this.dataDiffDoneAdd.splice(this.daysLeft - this.totalWorkDays , 1, diffDoneAdd );
-      console.log('dataDiffDoneAdd', this.dataDiffDoneAdd);
-
-      localStorage.setItem('dataDiffDoneAdd', JSON.stringify(this.dataDiffDoneAdd));
-
-    }
-
-
-    console.log(totalData.value);
-
-    this.data = {
-      labels: dataLabels,
-      datasets: [
-        {
-          label: 'Values',
-          data: valueLine,
-          fill: false,
-          borderColor: '#4bc0c0'
-        },
-        {
-          label: 'Done',
-          data: this.dataDiffDoneAdd,
-          fill: false,
-          borderColor: '#565656'
-        }
-      ]
-    };
-
-    this.options = {
-      responsive: true,
-      maintainAspectRatio: false
-    };
-  }
 
   ngOnInit() {
 
@@ -201,6 +137,8 @@ export class AppComponent implements OnInit {
     this.startDate = null;
     this.endDate = null;
     this.daysLeft = null;
+    this.dataDiffDoneAdd = null;
+    this.data = null;
 
     this.msgs = [];
     this.msgs.push({severity: 'info' , summary: 'Success', detail: 'Sprint Finished'});
@@ -210,8 +148,10 @@ export class AppComponent implements OnInit {
   dateCalc(): void {
 
     this.startDate =  new Date();
+    this.startDate.setHours(1,0,0,0);
 
     const tempendDate = new Date();
+    tempendDate.setHours(1,0,0,0);
     const addWeeks = this.nbrWeeks * 7;
     tempendDate.setDate(tempendDate.getDate() + addWeeks);
     this.endDate = tempendDate;
@@ -228,16 +168,98 @@ export class AppComponent implements OnInit {
   daysCalc(): void {
 
     const newEndDate = new Date(this.endDate);
-    const newStartDate = new Date(this.startDate);
-
-    console.log('days calc END', newEndDate);
-    console.log('days calc Start', newStartDate);
+    const newTodayDate = new Date('Mars 16, 2018');
 
     const one_day = 1000 * 60 * 60 * 24;
-    const diffDates = newEndDate.getTime() - newStartDate.getTime() ;
+
+    newEndDate.setHours(1,0,0,0);
+    newTodayDate.setHours(1,0,0,0);
+
+    console.log('days calc Start', newEndDate);
+    console.log('days calc elapse',     newTodayDate.getDay()  );
+
+    const diffDates = newEndDate.getTime() - newTodayDate.getTime();
+
     this.daysLeft = Math.ceil(diffDates / one_day);
-    this.daysLeft = this.daysLeft - (this.nbrWeeks * 2);
+    console.log('days calc ', this.daysLeft);
+    if (  newTodayDate.getDay() == 0) {
+      this.daysLeft --;
+    } else if (newTodayDate.getDay() == 6) {
+      this.daysLeft -= 2;
+    }
+    if (this.daysLeft == 7 ) {
+      this.daysLeft -= 2;
+    }
+
   }
+
+  calcGraph(): void {
+    const dataLabels = [];
+    const valueLine = [];
+
+    const totalData = this.projectList.find(entry => entry.name === 'Total');
+
+      for (let i = this.totalWorkDays ; i >= 0; i--) {
+        dataLabels.push(i);
+      }
+
+    let tempValue = totalData.value;
+
+    valueLine.push(totalData.value);
+    for (let k = this.totalWorkDays; k  >0; k --) {
+      tempValue = Math.floor(tempValue - (tempValue / k ));
+      valueLine.push(tempValue);
+    }
+
+    const tempDone = totalData.done;
+    const tempAdd = totalData.add;
+
+    const diffDoneAdd = (Number(totalData.value) + tempAdd) - tempDone;
+
+
+    if (this.dataDiffDoneAdd === null || this.dataDiffDoneAdd === undefined) {
+      this.dataDiffDoneAdd = new Array(this.totalWorkDays +1 );
+    }
+
+    console.log('total workdays',this.totalWorkDays);
+    console.log('total daysLeft', this.daysLeft);
+    console.log( 'Work minus left' , this.totalWorkDays - this.daysLeft);
+      const index = this.totalWorkDays - this.daysLeft;
+    this.dataDiffDoneAdd.splice(index, 1, diffDoneAdd );
+
+
+    localStorage.setItem('dataDiffDoneAdd', JSON.stringify(this.dataDiffDoneAdd));
+
+    console.log('dataLabels', dataLabels );
+    console.log('valueLine', valueLine );
+    console.log('dataDiff', this.dataDiffDoneAdd );
+
+    console.log(totalData.value);
+
+    this.data = {
+      labels: dataLabels,
+      datasets: [
+        {
+          label: 'Values',
+          data: valueLine,
+          fill: false,
+          borderColor: '#4bc0c0'
+        },
+        {
+          label: 'Done',
+          data: this.dataDiffDoneAdd,
+          fill: false,
+          borderColor: '#565656'
+        }
+      ]
+    };
+
+    this.options = {
+      responsive: true,
+      maintainAspectRatio: false
+    };
+  }
+
 
 
   save() {
