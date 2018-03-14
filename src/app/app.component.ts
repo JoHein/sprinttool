@@ -3,6 +3,7 @@ import { OnInit } from '@angular/core';
 import { ProjectModel } from './model/projectModel';
 import {Message} from 'primeng/api';
 import {ChartModule} from 'primeng/chart';
+import {DBService} from './database/postgres.service';
 
 
 @Component({
@@ -28,12 +29,18 @@ export class AppComponent implements OnInit {
   data: any;
   dataDiffDoneAdd: any;
   options: any;
+  returnQueryInitSprint: any;
 
 
+  constructor(private db: DBService) {}
 
   ngOnInit() {
 
-   this.started = JSON.parse(localStorage.getItem('isStarted'));
+    this.returnQueryInitSprint =  this.db.query('select * from sprint order by startdate DESC LIMIT 1');
+ // this.db.answerDb();
+     console.log('-----------Le retour du diable------------', this.returnQueryInitSprint[0].status);
+
+    this.started = this.returnQueryInitSprint[0].status;
 
     if (this.started) {
 
@@ -181,35 +188,34 @@ export class AppComponent implements OnInit {
     const diffDates = newEndDate.getTime() - newTodayDate.getTime();
 
     this.daysLeft = Math.ceil(diffDates / one_day);
-    console.log('days calc ', this.daysLeft);
-    if (  newTodayDate.getDay() == 0) {
-      this.daysLeft --;
-    } else if (newTodayDate.getDay() == 6) {
-      this.daysLeft -= 2;
-    }
-    if (this.daysLeft == 7 ) {
-      this.daysLeft -= 2;
-    }
-
+      console.log('days calc ', this.daysLeft);
+      if (  newTodayDate.getDay() == 0) {
+        this.daysLeft --;
+      } else if (newTodayDate.getDay() == 6) {
+        this.daysLeft -= 2;
+      }
+    this.daysLeft -= this.nbrWeeks * 2;
   }
 
   calcGraph(): void {
-    const dataLabels = [];
-    const valueLine = [];
 
     const totalData = this.projectList.find(entry => entry.name === 'Total');
 
-      for (let i = this.totalWorkDays ; i >= 0; i--) {
-        dataLabels.push(i);
-      }
+    const dataLabels = [];
+    const valueLine = [];
+
+    for (let i = this.totalWorkDays; i >= 0; i--) {
+      dataLabels.push(i);
+    }
 
     let tempValue = totalData.value;
 
     valueLine.push(totalData.value);
-    for (let k = this.totalWorkDays; k  >0; k --) {
+    for (let k = this.totalWorkDays; k > 0; k--) {
       tempValue = Math.floor(tempValue - (tempValue / k ));
       valueLine.push(tempValue);
     }
+
 
     const tempDone = totalData.done;
     const tempAdd = totalData.add;
@@ -224,7 +230,8 @@ export class AppComponent implements OnInit {
     console.log('total workdays',this.totalWorkDays);
     console.log('total daysLeft', this.daysLeft);
     console.log( 'Work minus left' , this.totalWorkDays - this.daysLeft);
-      const index = this.totalWorkDays - this.daysLeft;
+
+    const index = this.totalWorkDays - this.daysLeft;
     this.dataDiffDoneAdd.splice(index, 1, diffDoneAdd );
 
 
@@ -253,14 +260,13 @@ export class AppComponent implements OnInit {
         }
       ]
     };
+    console.log(this.data);
 
     this.options = {
       responsive: true,
       maintainAspectRatio: false
     };
   }
-
-
 
   save() {
 
@@ -282,5 +288,8 @@ export class AppComponent implements OnInit {
     this.displayDialog = true;
   }
 
+  printPage() {
+    window.print();
+  }
 
 }

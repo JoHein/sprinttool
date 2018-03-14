@@ -114,6 +114,7 @@
             <ng-template pTemplate="summary" let-rowData>
               <div style="text-align:left">
                 <button type="button" [disabled]="!started" pButton icon="fa-plus" (click)="showDialogToAdd()" label="Add"></button>
+                <button type="button" [disabled]="!started" pButton icon="fa fa-print" (click)="printPage()" label="Print"></button>
               </div>
             </ng-template>
           </p-table>

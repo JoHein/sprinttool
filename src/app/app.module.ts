@@ -14,7 +14,7 @@ import {ChartModule} from 'primeng/chart';
 import { AppRoutingModule } from './app-routing.module';
 import { registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr';
-
+import {DBService} from './database/postgres.service';
 registerLocaleData(localeFr, 'fr');
 
 @NgModule({
@@ -32,10 +32,10 @@ registerLocaleData(localeFr, 'fr');
     DialogModule,
     TableModule,
     CardModule,
-    ChartModule
+    ChartModule,
 
   ],
-  providers: [],
+  providers: [DBService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

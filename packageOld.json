@@ -1,30 +1,15 @@
 {
   "name": "sprinttool",
-  "productName": "SprintTool",
   "version": "0.0.0",
   "main": "main.js",
   "license": "MIT",
-  "description": "Sprint Tool app",
-  "build": {
-    "appId": "sprinttoolTMA",
-    "asar": true,
-    "directories": {
-      "output": "winsetup"
-    },
-    "win": {
-      "target": "nsis"
-    }
-  },
   "scripts": {
     "ng": "ng",
-    "start": "electron .",
+    "start": "ng serve",
+    "build": "ng build --prod",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e",
-    "build": "ng build",
-    "pack": "electron-builder --dir",
-    "dist": "ng build && electron-builder",
-    "electron": "ng build && electron ."
+    "e2e": "ng e2e"
   },
   "private": true,
   "dependencies": {
@@ -41,7 +26,7 @@
     "bootstrap": "^4.0.0",
     "chart.js": "^2.7.2",
     "core-js": "^2.4.1",
-    "electron-log": "^2.2.14",
+    "electron-builder": "^20.0.4",
     "font-awesome": "^4.7.0",
     "primeng": "^5.2.0",
     "rxjs": "^5.5.2",
@@ -57,19 +42,14 @@
     "codelyzer": "^4.0.1",
     "electron": "^1.8.3",
     "electron-packager": "^11.1.0",
-    "electron-squirrel-startup": "^1.0.0",
-    "electron-winstaller": "^2.6.4",
     "jasmine-core": "~2.6.2",
     "jasmine-spec-reporter": "~4.1.0",
-    "jquery": "^3.3.1",
     "karma": "~1.7.0",
     "karma-chrome-launcher": "~2.1.1",
     "karma-cli": "~1.0.1",
     "karma-coverage-istanbul-reporter": "^1.2.1",
     "karma-jasmine": "~1.1.0",
     "karma-jasmine-html-reporter": "^0.2.2",
-    "pg": "^7.4.1",
-    "popper.js": "^1.14.0",
     "protractor": "~5.1.2",
     "rcedit": "^1.0.0",
     "ts-node": "~3.2.0",
