@@ -1,4 +1,7 @@
 const electron = require('electron');
+const { Pool }  = require('pg');
+
+
 // Module to control application life.
 const app = electron.app;
 
@@ -12,6 +15,7 @@ if (handleSquirrelEvent(app)) {
 
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow;
+const Pool = electron.BrowserWindow;
 
 // Module to connect to database
 const ipcMain = electron.ipcMain;
@@ -21,8 +25,6 @@ const url = require('url');
 // npm run electron (to start app in electron)
 
 log.info('Hello, log' );
-
-const { Pool }  = require('pg')
 
 const pool = new Pool({
   user: 'adhsrmon',

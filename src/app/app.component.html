@@ -55,7 +55,7 @@
                   <td pEditableColumn style="height: 30px; cursor: pointer;">
                     <p-cellEditor>
                       <ng-template pTemplate="input" >
-                        <input [(ngModel)]="rowData.name" (input)="newNameProject()" type="text" placeholder="Name"/>
+                        <input [(ngModel)]="rowData.name" type="text" placeholder="Name"/>
                       </ng-template>
                       <ng-template pTemplate="output">
                         {{rowData.name}}
@@ -65,7 +65,7 @@
                   <td pEditableColumn style="height: 30px; cursor: pointer;">
                     <p-cellEditor>
                       <ng-template pTemplate="input">
-                        <input [(ngModel)]="rowData.value" (input)="computeTotal()" type="number" placeholder="Value" value="{{rowData.value}}"/>
+                        <input  [(ngModel)]="rowData.value" (input)="computeTotal()" type="number" placeholder="Value" value="{{rowData.value}}"/>
                       </ng-template>
                       <ng-template pTemplate="output">
                         {{rowData.value}}
@@ -115,6 +115,8 @@
               <div style="text-align:left">
                 <button type="button" [disabled]="!started" pButton icon="fa-plus" (click)="showDialogToAdd()" label="Add"></button>
                 <button type="button" [disabled]="!started" pButton icon="fa fa-print" (click)="printPage()" label="Print"></button>
+                <button type="button" [disabled]="!started" pButton icon="fa fa-floppy-o" (click)="saveListProject()" label="Save" class="ui-button-success"></button>
+
               </div>
             </ng-template>
           </p-table>

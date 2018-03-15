@@ -30,27 +30,34 @@ export class AppComponent implements OnInit {
   dataDiffDoneAdd: any;
   options: any;
   returnQueryInitSprint: any;
-
+  returnQueryProjectList: any;
+  returnQueryDataDiffDone: any;
 
   constructor(private db: DBService) {}
 
   ngOnInit() {
 
     this.returnQueryInitSprint =  this.db.query('select * from sprint order by startdate DESC LIMIT 1');
- // this.db.answerDb();
-     console.log('-----------Le retour du diable------------', this.returnQueryInitSprint[0].status);
 
-    this.started = this.returnQueryInitSprint[0].status;
+    if (this.returnQueryInitSprint[0] === undefined) {
+      this.started = false;
+    } else {
+      this.started = this.returnQueryInitSprint[0].status;
+    }
 
     if (this.started) {
+      this.returnQueryProjectList =  this.db.query('select * from sprint_project where project_sprintid = '+this.returnQueryInitSprint[0].sprintid);
+      this.returnQueryDataDiffDone = this.db.query('select * from sprint_diffdone where diffdone_sprintid = '+this.returnQueryInitSprint[0].sprintid);
 
-      this.projectList = JSON.parse(localStorage.getItem('projectList'));
-      this.startDate = JSON.parse(localStorage.getItem('startDate'));
-      this.endDate = JSON.parse(localStorage.getItem('endDate'));
-      this.nbrWeeks = JSON.parse(localStorage.getItem('nbrWeeks'));
-      this.nbrProjects = JSON.parse(localStorage.getItem('nbrProjects'));
-      this.totalWorkDays = JSON.parse(localStorage.getItem('totalWorkDays'));
-      this.dataDiffDoneAdd = JSON.parse(localStorage.getItem('dataDiffDoneAdd'));
+      console.log('----------- Le retour du diable ------------', this.returnQueryProjectList);
+
+      this.projectList = this.returnQueryProjectList;
+      this.startDate = this.returnQueryInitSprint[0].startdate;
+      this.endDate = this.returnQueryInitSprint[0].enddate;
+      this.nbrWeeks = this.returnQueryInitSprint[0].nbrweeks;
+      this.nbrProjects = this.returnQueryProjectList.length;
+      this.totalWorkDays = this.returnQueryInitSprint[0].totalworkdays;
+      this.dataDiffDoneAdd = this.returnQueryDataDiffDone;
 
       this.daysCalc();
       this.calcGraph();
@@ -100,12 +107,45 @@ export class AppComponent implements OnInit {
     result.value = tempCalcVal;
     result.add = tempCalcAdd;
     result.done = tempCalcDon;
-    localStorage.setItem('projectList', JSON.stringify(this.projectList));
     this.calcGraph();
   }
 
-  newNameProject(): void {
-    localStorage.setItem('projectList', JSON.stringify(this.projectList));
+  saveListProject(): void {
+
+    this.db.query('DELETE FROM sprint_project WHERE project_sprintid = '+ this.returnQueryInitSprint[0].sprintid +';');
+
+    for (let i = 0; i < this.projectList.length; i++) {
+     if (this.projectList[i].value === undefined) {
+       this.projectList[i].value = 0;
+     }
+      if (this.projectList[i].add === undefined) {
+        this.projectList[i].add = 0;
+      }
+      if (this.projectList[i].done === undefined) {
+        this.projectList[i].done = 0;
+      }
+
+      if (this.projectList[i].name !==undefined) {
+        const nameproject = '\''  +  this.projectList[i].name + '\'';
+        this.db.query('INSERT INTO sprint_project VALUES ('+this.returnQueryInitSprint[0].sprintid+', ' + nameproject + ','+
+          this.projectList[i].value +','+ this.projectList[i].add +','+ this.projectList[i].done +')');
+      }
+
+    }
+
+    this.db.query('DELETE FROM sprint_diffdone WHERE diffdone_sprintid = '+ this.returnQueryInitSprint[0].sprintid +';');
+
+    for (let i = 0; i < this.dataDiffDoneAdd.length; i++) {
+      if (this.dataDiffDoneAdd[i] === undefined) {
+        this.dataDiffDoneAdd[i] = null;
+      }
+      this.db.query('INSERT INTO sprint_diffdone VALUES ' +
+        '('+ this.returnQueryInitSprint[0].sprintid +', '+ this.daysLeft + ','+ this.dataDiffDoneAdd[i] +')');
+
+    }
+
+    this.msgs = [];
+    this.msgs.push({severity: 'success', summary: 'Success', detail: 'Saved'});
   }
 
   initSprint(): void {
@@ -116,14 +156,12 @@ export class AppComponent implements OnInit {
       this.numberProject();
       this.dateCalc();
 
-      localStorage.setItem('nbrWeeks', JSON.stringify(this.nbrWeeks));
-      localStorage.setItem('nbrProjects', JSON.stringify(this.nbrProjects));
+      const start = '\''  +  this.startDate + '\'';
+      const end = '\''  +  this.endDate + '\'';
 
-      localStorage.setItem('projectList', JSON.stringify(this.projectList));
-      localStorage.setItem('startDate', JSON.stringify(this.startDate));
-      localStorage.setItem('endDate', JSON.stringify(this.endDate));
-      localStorage.setItem('isStarted', JSON.stringify(this.started));
-      localStorage.setItem('totalWorkDays', JSON.stringify(this.totalWorkDays));
+    this.returnQueryInitSprint =  this.db.query('INSERT INTO sprint (sprintid, status, nbrweeks, startdate, enddate, totalworkdays) VALUES ' +
+        '(DEFAULT, true, '+ this.nbrWeeks +', ' + start + ', '+ end +', '+ this.totalWorkDays +' ) RETURNING sprintid' );
+
 
       // To retreive data var storedNames = JSON.parse(localStorage.getItem("names"));
       this.daysCalc();
@@ -146,6 +184,8 @@ export class AppComponent implements OnInit {
     this.daysLeft = null;
     this.dataDiffDoneAdd = null;
     this.data = null;
+
+    this.db.query('UPDATE sprint SET status = false WHERE sprintid = 2' );
 
     this.msgs = [];
     this.msgs.push({severity: 'info' , summary: 'Success', detail: 'Sprint Finished'});
@@ -182,9 +222,6 @@ export class AppComponent implements OnInit {
     newEndDate.setHours(1,0,0,0);
     newTodayDate.setHours(1,0,0,0);
 
-    console.log('days calc Start', newEndDate);
-    console.log('days calc elapse',     newTodayDate.getDay()  );
-
     const diffDates = newEndDate.getTime() - newTodayDate.getTime();
 
     this.daysLeft = Math.ceil(diffDates / one_day);
@@ -207,7 +244,8 @@ export class AppComponent implements OnInit {
     for (let i = this.totalWorkDays; i >= 0; i--) {
       dataLabels.push(i);
     }
-
+console.log('Total data',totalData);
+console.log('Total data',this.projectList);
     let tempValue = totalData.value;
 
     valueLine.push(totalData.value);
@@ -235,13 +273,6 @@ export class AppComponent implements OnInit {
     this.dataDiffDoneAdd.splice(index, 1, diffDoneAdd );
 
 
-    localStorage.setItem('dataDiffDoneAdd', JSON.stringify(this.dataDiffDoneAdd));
-
-    console.log('dataLabels', dataLabels );
-    console.log('valueLine', valueLine );
-    console.log('dataDiff', this.dataDiffDoneAdd );
-
-    console.log(totalData.value);
 
     this.data = {
       labels: dataLabels,
@@ -275,8 +306,6 @@ export class AppComponent implements OnInit {
     this.nbrProjects = nbrTempProject + 1 ;
 
     this.projectList.splice(nbrTempProject, 0, this.project);
-    localStorage.setItem('projectList', JSON.stringify(this.projectList));
-    localStorage.setItem('nbrProjects', JSON.stringify(this.nbrProjects));
 
     this.displayDialog = false;
 
