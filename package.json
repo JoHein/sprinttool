@@ -1,7 +1,7 @@
 {
   "name": "sprinttool",
   "productName": "SprintTool",
-  "version": "0.0.0",
+  "version": "1.11",
   "main": "main.js",
   "license": "MIT",
   "description": "Sprint Tool app",
