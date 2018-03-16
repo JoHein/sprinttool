@@ -15,7 +15,6 @@ if (handleSquirrelEvent(app)) {
 
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow;
-const Pool = electron.BrowserWindow;
 
 // Module to connect to database
 const ipcMain = electron.ipcMain;

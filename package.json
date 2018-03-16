@@ -7,7 +7,7 @@
   "description": "Sprint Tool app",
   "build": {
     "appId": "sprinttoolTMA",
-    "asar": true,
+    "asar": false,
     "directories": {
       "output": "winsetup"
     },
@@ -45,7 +45,8 @@
     "electron-log": "^2.2.14",
     "font-awesome": "^4.7.0",
     "rxjs": "^5.5.2",
-    "zone.js": "^0.8.14"
+    "zone.js": "^0.8.14",
+    "pg": "^7.4.1"
   },
   "devDependencies": {
     "@angular/cli": "^1.7.3",

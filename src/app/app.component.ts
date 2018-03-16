@@ -304,9 +304,7 @@ console.log('Total data',this.projectList);
     let nbrTempProject: number;
     nbrTempProject = Number(this.nbrProjects);
     this.nbrProjects = nbrTempProject + 1 ;
-
-    this.projectList.splice(nbrTempProject, 0, this.project);
-
+    this.projectList.splice(nbrTempProject - 1, 0, this.project);
     this.displayDialog = false;
 
   }
