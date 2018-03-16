@@ -37,8 +37,8 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
 
-    this.returnQueryInitSprint =  this.db.query('select * from sprint order by startdate DESC LIMIT 1');
-
+    this.returnQueryInitSprint =  this.db.query('select * from sprint order by sprintid DESC LIMIT 1');
+    console.log('SprintId',  this.returnQueryInitSprint[0].sprintid);
     if (this.returnQueryInitSprint[0] === undefined) {
       this.started = false;
     } else {
@@ -49,21 +49,34 @@ export class AppComponent implements OnInit {
       this.returnQueryProjectList =  this.db.query('select * from sprint_project where project_sprintid = '+this.returnQueryInitSprint[0].sprintid);
       this.returnQueryDataDiffDone = this.db.query('select * from sprint_diffdone where diffdone_sprintid = '+this.returnQueryInitSprint[0].sprintid);
 
-      console.log('----------- Le retour du diable ------------', this.returnQueryProjectList);
-
-      this.projectList = this.returnQueryProjectList;
+      this.projectList = this.reorderProjectTotal(this.returnQueryProjectList);
       this.startDate = this.returnQueryInitSprint[0].startdate;
       this.endDate = this.returnQueryInitSprint[0].enddate;
       this.nbrWeeks = this.returnQueryInitSprint[0].nbrweeks;
-      this.nbrProjects = this.returnQueryProjectList.length;
+      this.nbrProjects = this.returnQueryProjectList.length -1;
       this.totalWorkDays = this.returnQueryInitSprint[0].totalworkdays;
       this.dataDiffDoneAdd = this.returnQueryDataDiffDone;
 
       this.daysCalc();
       this.calcGraph();
 
-      // To retreive data var storedNames = JSON.parse(localStorage.getItem("names"));
     }
+  }
+
+  reorderProjectTotal(list: any): any {
+    let tempArrayProject = [];
+    let tempTotal:  any;
+    for (let i = 0; i< list.length; i ++) {
+      if (list[i].name === 'Total') {
+        tempTotal = list[i];
+
+      }else{
+        tempArrayProject.push(list[i]);
+      }
+    }
+    tempArrayProject.push(tempTotal);
+    return tempArrayProject;
+
   }
 
   numberProject(): void {
@@ -177,7 +190,6 @@ export class AppComponent implements OnInit {
   finishSprint(): void {
     // Clean and save in file;
     this.started = false;
-    localStorage.clear();
     this.projectList = [];
     this.startDate = null;
     this.endDate = null;
@@ -185,7 +197,7 @@ export class AppComponent implements OnInit {
     this.dataDiffDoneAdd = null;
     this.data = null;
 
-    this.db.query('UPDATE sprint SET status = false WHERE sprintid = 2' );
+    this.db.query('UPDATE sprint SET status = false WHERE sprintid = '+ this.returnQueryInitSprint[0].sprintid +'' );
 
     this.msgs = [];
     this.msgs.push({severity: 'info' , summary: 'Success', detail: 'Sprint Finished'});
@@ -244,8 +256,7 @@ export class AppComponent implements OnInit {
     for (let i = this.totalWorkDays; i >= 0; i--) {
       dataLabels.push(i);
     }
-console.log('Total data',totalData);
-console.log('Total data',this.projectList);
+
     let tempValue = totalData.value;
 
     valueLine.push(totalData.value);
@@ -265,14 +276,8 @@ console.log('Total data',this.projectList);
       this.dataDiffDoneAdd = new Array(this.totalWorkDays +1 );
     }
 
-    console.log('total workdays',this.totalWorkDays);
-    console.log('total daysLeft', this.daysLeft);
-    console.log( 'Work minus left' , this.totalWorkDays - this.daysLeft);
-
     const index = this.totalWorkDays - this.daysLeft;
     this.dataDiffDoneAdd.splice(index, 1, diffDoneAdd );
-
-
 
     this.data = {
       labels: dataLabels,
@@ -291,7 +296,6 @@ console.log('Total data',this.projectList);
         }
       ]
     };
-    console.log(this.data);
 
     this.options = {
       responsive: true,
@@ -303,8 +307,10 @@ console.log('Total data',this.projectList);
 
     let nbrTempProject: number;
     nbrTempProject = Number(this.nbrProjects);
+    this.projectList.splice(nbrTempProject , 0, this.project);
     this.nbrProjects = nbrTempProject + 1 ;
-    this.projectList.splice(nbrTempProject - 1, 0, this.project);
+
+    console.log('Save',this.projectList);
     this.displayDialog = false;
 
   }
