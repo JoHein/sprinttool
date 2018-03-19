@@ -1,0 +1,33 @@
+body{
+  font-family: "Roboto", "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+.container{
+  padding-top: 6em;
+  padding-left: 1em;
+  padding-right: 1em;
+
+}
+
+body > app-root > app-home > div > div > div > div > div.ui-g-7 > p-card > div > div > div > p-chart > div{
+  height: 100%;
+}
+body > app-root > app-home > div > div > div > div > div.ui-g-8 > p-card > div > div > div > p-chart > div{
+  height: 100%;
+}
+body > app-root > app-home > div > div > div > div > div.ui-g-8 > p-card > div > div > div {
+  height: 100%;
+}
+body > app-root > app-home > div > div > div > div > div.ui-g-7 > p-card > div > div > div{
+  height: 100%;
+}
+
+
+
+.ui-card-body{
+  height:100%;
+}
+
+.ui-card-content{
+  height:100%;
+}
+

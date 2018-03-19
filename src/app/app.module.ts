@@ -10,6 +10,11 @@ import {DialogModule} from 'primeng/dialog';
 import {TableModule} from 'primeng/table';
 import {CardModule} from 'primeng/card';
 import {ChartModule} from 'primeng/chart';
+import {PanelModule} from 'primeng/panel';
+
+
+import {HistoriqueComponent} from './historique/historique.component';
+import {HomeComponent} from './home/home.component';
 
 import { AppRoutingModule } from './app-routing.module';
 import { registerLocaleData } from '@angular/common';
@@ -20,6 +25,8 @@ registerLocaleData(localeFr, 'fr');
 @NgModule({
   declarations: [
     AppComponent,
+    HistoriqueComponent,
+    HomeComponent
   ],
   imports: [
 
@@ -33,6 +40,7 @@ registerLocaleData(localeFr, 'fr');
     TableModule,
     CardModule,
     ChartModule,
+    PanelModule
 
   ],
   providers: [DBService],

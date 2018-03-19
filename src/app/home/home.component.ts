@@ -1,18 +1,18 @@
 import { Component } from '@angular/core';
 import { OnInit } from '@angular/core';
-import { ProjectModel } from './model/projectModel';
+import { ProjectModel } from '../model/projectModel';
 import {Message} from 'primeng/api';
 import {ChartModule} from 'primeng/chart';
-import {DBService} from './database/postgres.service';
+import {DBService} from '../database/postgres.service';
 import {Router} from "@angular/router";
 
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  selector: 'app-home',
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.css']
 })
-export class AppComponent implements OnInit {
+export class HomeComponent implements OnInit {
 
   projectList: ProjectModel[];
   nbrProjects: number;
@@ -28,7 +28,9 @@ export class AppComponent implements OnInit {
   project: ProjectModel;
   displayDialog: boolean;
   data: any;
-  dataDiffDoneAdd: any;
+  dataDiffDoneAdd = [];
+  valueDiffDoneFromDb = [];
+
   options: any;
   returnQueryInitSprint: any;
   returnQueryProjectList: any;
@@ -38,26 +40,26 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
 
-    // this.returnQueryInitSprint =  this.db.query('select * from sprint order by sprintid DESC LIMIT 1');
-    // console.log('SprintId',  this.returnQueryInitSprint[0].sprintid);
-    // if (this.returnQueryInitSprint[0] === undefined) {
-    //   this.started = false;
-    // } else {
-    //   this.started = this.returnQueryInitSprint[0].status;
-    // }
+    this.returnQueryInitSprint =  this.db.query('select * from sprint order by sprintid DESC LIMIT 1');
+    console.log('SprintId',  this.returnQueryInitSprint[0].sprintid);
+    if (this.returnQueryInitSprint[0] === undefined) {
+      this.started = false;
+    } else {
+      this.started = this.returnQueryInitSprint[0].status;
+    }
 
     if (this.started) {
-      // this.returnQueryProjectList =  this.db.query('select * from sprint_project where project_sprintid = '+this.returnQueryInitSprint[0].sprintid);
-      // this.returnQueryDataDiffDone = this.db.query('select * from sprint_diffdone where diffdone_sprintid = '+this.returnQueryInitSprint[0].sprintid);
-      //
-      // this.projectList = this.reorderProjectTotal(this.returnQueryProjectList);
-      // this.startDate = this.returnQueryInitSprint[0].startdate;
-      // this.endDate = this.returnQueryInitSprint[0].enddate;
-      // this.nbrWeeks = this.returnQueryInitSprint[0].nbrweeks;
-      // this.nbrProjects = this.returnQueryProjectList.length -1;
-      // this.totalWorkDays = this.returnQueryInitSprint[0].totalworkdays;
-      // this.dataDiffDoneAdd = this.returnQueryDataDiffDone;
+      this.returnQueryProjectList =  this.db.query('select * from sprint_project where project_sprintid = '+this.returnQueryInitSprint[0].sprintid);
+      this.returnQueryDataDiffDone = this.db.query('select * from sprint_diffdone where diffdone_sprintid = '+this.returnQueryInitSprint[0].sprintid);
 
+      this.projectList = this.reorderProjectTotal(this.returnQueryProjectList);
+      this.startDate = this.returnQueryInitSprint[0].startdate;
+      this.endDate = this.returnQueryInitSprint[0].enddate;
+      this.nbrWeeks = this.returnQueryInitSprint[0].nbrweeks;
+      this.nbrProjects = this.returnQueryProjectList.length -1;
+      this.totalWorkDays = this.returnQueryInitSprint[0].totalworkdays;
+      this.dataDiffDoneAdd = this.returnQueryDataDiffDone;
+console.log('dit moi que tu es un object', this.dataDiffDoneAdd);
       this.daysCalc();
       this.calcGraph();
 
@@ -147,16 +149,22 @@ export class AppComponent implements OnInit {
 
     }
 
-    this.db.query('DELETE FROM sprint_diffdone WHERE diffdone_sprintid = '+ this.returnQueryInitSprint[0].sprintid +';');
+    console.log('this.dataDiffDoneAdd LIST BEFORE', this.dataDiffDoneAdd.length);
+    console.log('this.dataDiffDoneAdd', this.dataDiffDoneAdd);
 
-    for (let i = 0; i < this.dataDiffDoneAdd.length; i++) {
-      if (this.dataDiffDoneAdd[i] === undefined) {
-        this.dataDiffDoneAdd[i] = null;
+
+
+     let retourSelect =  this.db.query('select diffdone_sprintid from sprint_diffdone where diffdone_sprintid = '+this.returnQueryInitSprint[0].sprintid +' and days='+this.daysLeft+';');
+      console.log('this.retourSelect ', retourSelect[0]);
+
+      if (retourSelect[0] !== undefined) {
+        this.db.query('UPDATE sprint_diffdone SET add_done = '+ this.dataDiffDoneAdd[this.daysLeft].add_done +' WHERE diffdone_sprintid = '+ this.returnQueryInitSprint[0].sprintid +' and days='+this.daysLeft +'' );
+      } else {
+        this.msgs = [];
+        this.msgs.push({severity: 'error', summary: 'Error', detail: 'Saving error'});
       }
-      this.db.query('INSERT INTO sprint_diffdone VALUES ' +
-        '('+ this.returnQueryInitSprint[0].sprintid +', '+ this.daysLeft + ','+ this.dataDiffDoneAdd[i] +')');
 
-    }
+
 
     this.msgs = [];
     this.msgs.push({severity: 'success', summary: 'Success', detail: 'Saved'});
@@ -176,6 +184,11 @@ export class AppComponent implements OnInit {
     this.returnQueryInitSprint =  this.db.query('INSERT INTO sprint (sprintid, status, nbrweeks, startdate, enddate, totalworkdays) VALUES ' +
         '(DEFAULT, true, '+ this.nbrWeeks +', ' + start + ', '+ end +', '+ this.totalWorkDays +' ) RETURNING sprintid' );
 
+      for (let i = 0; i < this.totalWorkDays +1; i++) {
+
+        this.db.query('INSERT INTO sprint_diffdone VALUES ' +
+          '(' + this.returnQueryInitSprint[0].sprintid + ', ' + i + ', null)');
+      }
 
       // To retreive data var storedNames = JSON.parse(localStorage.getItem("names"));
       this.daysCalc();
@@ -253,6 +266,7 @@ export class AppComponent implements OnInit {
 
     const dataLabels = [];
     const valueLine = [];
+    let displayDiffDone = [];
 
     for (let i = this.totalWorkDays; i >= 0; i--) {
       dataLabels.push(i);
@@ -272,13 +286,14 @@ export class AppComponent implements OnInit {
 
     const diffDoneAdd = (Number(totalData.value) + tempAdd) - tempDone;
 
-
-    if (this.dataDiffDoneAdd === null || this.dataDiffDoneAdd === undefined) {
-      this.dataDiffDoneAdd = new Array(this.totalWorkDays +1 );
-    }
-
     const index = this.totalWorkDays - this.daysLeft;
-    this.dataDiffDoneAdd.splice(index, 1, diffDoneAdd );
+    this.dataDiffDoneAdd[this.daysLeft].add_done = diffDoneAdd;
+
+     for ( let i = this.dataDiffDoneAdd.length - 1; i > 0; i--) {
+         displayDiffDone.push(this.dataDiffDoneAdd[i].add_done);
+
+     }
+
 
     this.data = {
       labels: dataLabels,
@@ -291,7 +306,7 @@ export class AppComponent implements OnInit {
         },
         {
           label: 'Done',
-          data: this.dataDiffDoneAdd,
+          data: displayDiffDone,
           fill: false,
           borderColor: '#565656'
         }

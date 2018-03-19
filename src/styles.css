@@ -27,6 +27,10 @@ body{
   display: block;
 }
 
+body > app-root > app-home > div > div > div > div > div.ui-g-7 > p-card > div > div > div > p-chart > div{
+  height:100%;
+}
+
 h2{
   font-family: "Roboto", "Trebuchet MS", Arial, Helvetica, sans-serif;
   margin-top:10px;
