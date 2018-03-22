@@ -1,6 +1,5 @@
 <!--The content below is only a placeholder and can be replaced.-->
 <p-button style="margin-top: 5em; margin-left: 2em;" (onClick)="navigateHisto()" icon="fa fa-history" label="History"></p-button>
-
 <div class="container">
 
   <div class="ui-g">
@@ -11,7 +10,9 @@
 
           <button *ngIf="!started" pButton type="button" label="Start" icon="fa-check" (click)="initSprint()"
                   class="ui-button-info" iconPos="left" style="margin-bottom: 1em;"></button>
-          <button *ngIf="started" pButton type="button" label="Finish" icon="fa-rocket" (click)="finishSprint()"
+
+            <p-confirmDialog></p-confirmDialog>
+            <button *ngIf="started" pButton type="button" label="Finish" icon="fa-rocket" (click)="finishSprint()"
                   class="ui-button-info" iconPos="left" style="margin-bottom: 1em;"></button>
 
           <p-growl [(value)]="msgs"></p-growl>

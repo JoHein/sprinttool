@@ -56,3 +56,18 @@ body > app-root > div > div > div > div > div.ui-g-7 > p-card > div > div > div 
 body > app-root > div > div > div > div > div.ui-g-8 > p-card > div > div > div > p-chart > div{
   height: 100%;
 }
+
+.ui-accordion .ui-accordion-header a {
+  text-decoration : none !important;
+  padding: .3em;
+}
+.ui-accordion .ui-accordion-header {
+  height: 2em !important;
+}
+
+.container{
+  padding-top: 6em;
+  padding-left: 1em;
+  padding-right: 1em;
+
+}

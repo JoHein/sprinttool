@@ -11,6 +11,9 @@ import {TableModule} from 'primeng/table';
 import {CardModule} from 'primeng/card';
 import {ChartModule} from 'primeng/chart';
 import {PanelModule} from 'primeng/panel';
+import {AccordionModule} from 'primeng/accordion';
+import {ConfirmDialogModule} from 'primeng/confirmdialog';
+import {ConfirmationService} from 'primeng/api';
 
 
 import {HistoriqueComponent} from './historique/historique.component';
@@ -40,10 +43,12 @@ registerLocaleData(localeFr, 'fr');
     TableModule,
     CardModule,
     ChartModule,
-    PanelModule
+    PanelModule,
+    AccordionModule,
+    ConfirmDialogModule
 
   ],
-  providers: [DBService],
+  providers: [DBService,ConfirmationService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -5,7 +5,8 @@ import {Message} from 'primeng/api';
 import {ChartModule} from 'primeng/chart';
 import {DBService} from '../database/postgres.service';
 import {Router} from "@angular/router";
-
+import {ConfirmDialogModule} from 'primeng/confirmdialog';
+import {ConfirmationService} from 'primeng/api';
 
 @Component({
   selector: 'app-home',
@@ -36,7 +37,7 @@ export class HomeComponent implements OnInit {
   returnQueryProjectList: any;
   returnQueryDataDiffDone: any;
 
-  constructor(private db: DBService, private router: Router) {}
+  constructor(private db: DBService, private router: Router, private confirmationService: ConfirmationService) {}
 
   ngOnInit() {
 
@@ -50,7 +51,7 @@ export class HomeComponent implements OnInit {
 
     if (this.started) {
       this.returnQueryProjectList =  this.db.query('select * from sprint_project where project_sprintid = '+this.returnQueryInitSprint[0].sprintid);
-      this.returnQueryDataDiffDone = this.db.query('select * from sprint_diffdone where diffdone_sprintid = '+this.returnQueryInitSprint[0].sprintid);
+      this.returnQueryDataDiffDone = this.db.query('select * from sprint_diffdone where diffdone_sprintid = '+this.returnQueryInitSprint[0].sprintid +' order by days ASC');
 
       this.projectList = this.reorderProjectTotal(this.returnQueryProjectList);
       this.startDate = this.returnQueryInitSprint[0].startdate;
@@ -59,8 +60,9 @@ export class HomeComponent implements OnInit {
       this.nbrProjects = this.returnQueryProjectList.length -1;
       this.totalWorkDays = this.returnQueryInitSprint[0].totalworkdays;
       this.dataDiffDoneAdd = this.returnQueryDataDiffDone;
-console.log('dit moi que tu es un object', this.dataDiffDoneAdd);
+
       this.daysCalc();
+      this.verifDiffDoneAdd();
       this.calcGraph();
 
     }
@@ -203,18 +205,31 @@ console.log('dit moi que tu es un object', this.dataDiffDoneAdd);
 
   finishSprint(): void {
     // Clean and save in file;
-    this.started = false;
-    this.projectList = [];
-    this.startDate = null;
-    this.endDate = null;
-    this.daysLeft = null;
-    this.dataDiffDoneAdd = null;
-    this.data = null;
 
-    this.db.query('UPDATE sprint SET status = false WHERE sprintid = '+ this.returnQueryInitSprint[0].sprintid +'' );
+    this.confirmationService.confirm({
+      message: 'Are you sure that you want to proceed?',
+      header: 'Confirmation',
+      icon: 'fa-exclamation-triangle',
+      accept: () => {
 
-    this.msgs = [];
-    this.msgs.push({severity: 'info' , summary: 'Success', detail: 'Sprint Finished'});
+        this.save();
+        this.started = false;
+        this.projectList = [];
+        this.startDate = null;
+        this.endDate = null;
+        this.daysLeft = null;
+        this.dataDiffDoneAdd = null;
+        this.data = null;
+
+        this.db.query('UPDATE sprint SET status = false WHERE sprintid = '+ this.returnQueryInitSprint[0].sprintid +'');
+
+        this.msgs.push({severity: 'info' , summary: 'Success', detail: 'Sprint Finished'});
+      },
+      reject: () => {
+        this.msgs.push({severity: 'info' , summary: 'Success', detail: 'Declined'});
+      }
+    });
+
   }
 
 
@@ -286,14 +301,14 @@ console.log('dit moi que tu es un object', this.dataDiffDoneAdd);
 
     const diffDoneAdd = (Number(totalData.value) + tempAdd) - tempDone;
 
-    const index = this.totalWorkDays - this.daysLeft;
     this.dataDiffDoneAdd[this.daysLeft].add_done = diffDoneAdd;
+    // displayDiffDone.push(totalData.value);
 
      for ( let i = this.dataDiffDoneAdd.length - 1; i > 0; i--) {
          displayDiffDone.push(this.dataDiffDoneAdd[i].add_done);
-
      }
 
+  console.log('this.dataDiffDoneAdd', this.dataDiffDoneAdd);
 
     this.data = {
       labels: dataLabels,
@@ -319,6 +334,23 @@ console.log('dit moi que tu es un object', this.dataDiffDoneAdd);
     };
   }
 
+  verifDiffDoneAdd() : void {
+    this.dataDiffDoneAdd
+
+    for (let i = this.dataDiffDoneAdd.length -1; i>0; i--) {
+      if (i === this.daysLeft) {
+        break;
+      } else {
+        if (this.dataDiffDoneAdd[i].add_done === null) {
+          this.dataDiffDoneAdd[i].add_done = this.dataDiffDoneAdd[i-1].add_done;
+        }
+      }
+    }
+
+    console.log('after verif', this.dataDiffDoneAdd );
+
+  }
+
   save() {
 
     let nbrTempProject: number;
@@ -340,6 +372,8 @@ console.log('dit moi que tu es un object', this.dataDiffDoneAdd);
   printPage() {
     window.print();
   }
+
+
 
   navigateHisto() {
     console.log('Direction History');

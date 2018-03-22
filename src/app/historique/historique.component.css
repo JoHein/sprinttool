@@ -1,0 +1,5 @@
+.ui-accordion .ui-accordion-header a { text-decoration : none !important; }
+.ui-accordion .ui-accordion-header {
+  color:green !important;
+  height: 1em !important;
+}
