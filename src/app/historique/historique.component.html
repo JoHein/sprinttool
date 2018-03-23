@@ -5,9 +5,8 @@
 
   <p-card  [style]="{width: '100%', height: '100%'}">
     <p-growl [value]="msgs"></p-growl>
-    <div class="ui-g">
 
-      <p-accordion [multiple]="true" [activeIndex]="tabActive" (onOpen)="itemClicked($event)">
+      <p-accordion [multiple]="true" [activeIndex]="tabActive" (onOpen)="itemClicked($event)" style="margin-right: 1em;">
         <p-accordionTab *ngFor="let item of returnListSprint; let i = index;" >
           <p-header>
            Sprint: {{item.sprintid}} - Weeks: {{item.nbrweeks}} - Start: {{item.startdate | date:'longDate':'':'fr'}} - End: {{item.enddate| date:'longDate':'':'fr'}}
@@ -41,7 +40,6 @@
       <!--<p-panel header="{{item.sprintid}} {{i}}" [toggleable]="true" [collapsed]="true" [style]="{'margin-bottom':'20px'}">-->
         <!--The story begins as Don Vito Corleone, the head of a New York Mafia family, oversees his daughter's wedding.-->
       <!--</p-panel>-->
-    </div>
   </p-card>
 </div>
 
