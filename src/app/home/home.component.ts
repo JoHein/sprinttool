@@ -60,10 +60,13 @@ export class HomeComponent implements OnInit {
       this.nbrProjects = this.returnQueryProjectList.length -1;
       this.totalWorkDays = this.returnQueryInitSprint[0].totalworkdays;
       this.dataDiffDoneAdd = this.returnQueryDataDiffDone;
+      console.log('ngOninit', this.dataDiffDoneAdd);
 
-      this.daysCalc();
-      this.verifDiffDoneAdd();
-      this.calcGraph();
+      if(this.dataDiffDoneAdd.length != 0) {
+        this.daysCalc();
+        this.verifDiffDoneAdd();
+        this.calcGraph();
+      }
 
     }
   }
@@ -179,6 +182,7 @@ export class HomeComponent implements OnInit {
       this.started = true;
       this.numberProject();
       this.dateCalc();
+      this.dataDiffDoneAdd = [];
 
       const start = '\''  +  this.startDate + '\'';
       const end = '\''  +  this.endDate + '\'';
@@ -188,8 +192,11 @@ export class HomeComponent implements OnInit {
 
       for (let i = 0; i < this.totalWorkDays +1; i++) {
 
+        this.dataDiffDoneAdd.push({'diffdone_sprintid': this.returnQueryInitSprint[0].sprintid, 'days': i,'add_done':null});
+        console.log('Init sprint',this.dataDiffDoneAdd);
         this.db.query('INSERT INTO sprint_diffdone VALUES ' +
           '(' + this.returnQueryInitSprint[0].sprintid + ', ' + i + ', null)');
+
       }
 
       // To retreive data var storedNames = JSON.parse(localStorage.getItem("names"));
@@ -222,6 +229,7 @@ export class HomeComponent implements OnInit {
         this.data = null;
 
         this.db.query('UPDATE sprint SET status = false WHERE sprintid = '+ this.returnQueryInitSprint[0].sprintid +'');
+
 
         this.msgs.push({severity: 'info' , summary: 'Success', detail: 'Sprint Finished'});
       },
@@ -301,8 +309,12 @@ export class HomeComponent implements OnInit {
 
     const diffDoneAdd = (Number(totalData.value) + tempAdd) - tempDone;
 
-    this.dataDiffDoneAdd[this.daysLeft].add_done = diffDoneAdd;
-    // displayDiffDone.push(totalData.value);
+    if (this.dataDiffDoneAdd[this.daysLeft].add_done === undefined ) {
+      this.dataDiffDoneAdd[this.daysLeft].add_done = diffDoneAdd;
+    } else {
+      this.dataDiffDoneAdd[this.daysLeft].add_done = diffDoneAdd;
+    }
+
 
      for ( let i = this.dataDiffDoneAdd.length - 1; i > 0; i--) {
          displayDiffDone.push(this.dataDiffDoneAdd[i].add_done);
@@ -336,13 +348,17 @@ export class HomeComponent implements OnInit {
 
   verifDiffDoneAdd() : void {
     this.dataDiffDoneAdd
-
     for (let i = this.dataDiffDoneAdd.length -1; i>0; i--) {
       if (i === this.daysLeft) {
         break;
       } else {
         if (this.dataDiffDoneAdd[i].add_done === null) {
-          this.dataDiffDoneAdd[i].add_done = this.dataDiffDoneAdd[i-1].add_done;
+          console.log('ENTER IF NULL', this.dataDiffDoneAdd[i] );
+
+          this.dataDiffDoneAdd[i].add_done = this.dataDiffDoneAdd[i+1].add_done;
+
+          this.db.query('UPDATE sprint_diffdone SET add_done = '+ this.dataDiffDoneAdd[i].add_done +'' +
+            ' WHERE diffdone_sprintid = '+ this.returnQueryInitSprint[0].sprintid +' and days='+ i +'' );
         }
       }
     }
@@ -372,8 +388,6 @@ export class HomeComponent implements OnInit {
   printPage() {
     window.print();
   }
-
-
 
   navigateHisto() {
     console.log('Direction History');

@@ -1,7 +1,7 @@
 {
   "name": "sprinttool",
   "productName": "SprintTool",
-  "version": "1.1.1",
+  "version": "2.1.1",
   "main": "main.js",
   "license": "MIT",
   "description": "Sprint Tool app",
@@ -23,7 +23,7 @@
     "e2e": "ng e2e",
     "build": "ng build",
     "pack": "electron-builder --dir",
-    "dist": "ng build && electron-builder && electron-builder install-app-deps",
+    "dist": "ng build && electron-builder",
     "electron": "ng build && electron .",
     "postinstall": "install-app-deps"
   },
@@ -44,9 +44,10 @@
     "core-js": "^2.4.1",
     "electron-log": "^2.2.14",
     "font-awesome": "^4.7.0",
+    "glob-parent": "^3.1.0",
+    "pg": "^7.4.1",
     "rxjs": "^5.5.2",
-    "zone.js": "^0.8.14",
-    "pg": "^7.4.1"
+    "zone.js": "^0.8.14"
   },
   "devDependencies": {
     "@angular/cli": "^1.7.3",

@@ -7,7 +7,7 @@ import {DBService} from '../database/postgres.service';
 import {Router} from "@angular/router";
 import {AccordionModule} from 'primeng/accordion';
 import {TableModule} from 'primeng/table';
-
+import {ConfirmationService} from 'primeng/api';
 
 @Component({
   selector: 'app-history',
@@ -27,7 +27,7 @@ export class HistoriqueComponent implements OnInit {
   options: any;
 
 
-  constructor(private db: DBService, private router: Router) {}
+  constructor(private db: DBService, private router: Router, private confirmationService: ConfirmationService) {}
 
 
   ngOnInit() {
@@ -61,7 +61,9 @@ export class HistoriqueComponent implements OnInit {
   calcGraph(index: number, totalWorkDays: number, projectList: any, dataopentabdone: any): void {
 
     const totalData = projectList.find(entry => entry.name === 'Total');
-
+    if (totalData.value === undefined) {
+      totalData.value = 0;
+    }
     const dataLabels = [];
     const valueLine = [];
     let displayDiffDone = [];
@@ -122,6 +124,30 @@ export class HistoriqueComponent implements OnInit {
     console.log('data',data);
 
     this.listDataGraph[index] = (data);
+  }
+
+  deleteSprint(id: number): void {
+    console.log('delete Id', id);
+    this.confirmationService.confirm({
+      message: 'Are you sure that you want to proceed?',
+      header: 'Confirmation',
+      icon: 'fa-exclamation-triangle',
+      accept: () => {
+
+        this.db.query('DELETE FROM sprint_diffdone WHERE diffdone_sprintid = '+ id +';');
+        this.db.query('DELETE FROM sprint_project WHERE project_sprintid = '+ id +';');
+        this.db.query('DELETE FROM sprint WHERE sprintid = '+ id +';');
+
+       let index = this.returnListSprint.findIndex(item => item.sprintid === id);
+
+       this.returnListSprint.splice(index,1);
+
+        this.msgs.push({severity: 'info' , summary: 'Success', detail: 'Sprint Deleted'});
+      },
+      reject: () => {
+        this.msgs.push({severity: 'info' , summary: 'Success', detail: 'Declined'});
+      }
+    });
   }
 
   navigateToHome() {
