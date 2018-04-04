@@ -264,6 +264,7 @@ export class HomeComponent implements OnInit {
   daysCalc(): void {
 
     const newEndDate = new Date(this.endDate);
+    const newStartDate = new Date(this.startDate);
     const newTodayDate = new Date();
 
     const one_day = 1000 * 60 * 60 * 24;
@@ -271,16 +272,33 @@ export class HomeComponent implements OnInit {
     newEndDate.setHours(1,0,0,0);
     newTodayDate.setHours(1,0,0,0);
 
-    const diffDates = newEndDate.getTime() - newTodayDate.getTime();
+    // Le nombre de jour qui reste c'est :
+    // Le nombre de jour total - le nombre de jours de weekend - le nombre de jour passés sans les weekends
 
-    this.daysLeft = Math.ceil(diffDates / one_day);
-      console.log('days calc ', this.daysLeft);
-      if (  newTodayDate.getDay() == 0) {
-        this.daysLeft --;
-      } else if (newTodayDate.getDay() == 6) {
-        this.daysLeft -= 2;
-      }
-    this.daysLeft -= this.nbrWeeks * 2;
+    let todayWeekNumber = this.calcWeek(newTodayDate);
+    let starWeekNumber = this.calcWeek(newStartDate);
+    let daysPassed = Math.ceil( (newTodayDate.getTime() - newStartDate.getTime()) / one_day ) - ((todayWeekNumber - starWeekNumber )*2);
+
+    let totaldays = Math.ceil( (newEndDate.getTime() - newStartDate.getTime()) / one_day ) ;
+
+    this.daysLeft = totaldays - (this.nbrWeeks * 2) - daysPassed;
+    console.log('days calc apres', this.daysLeft);
+
+  }
+
+  calcWeek(date: Date): number {
+
+      date.setHours(0, 0, 0, 0);
+      // Thursday in current week decides the year.
+      date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+      // January 4 is always in week 1.
+      let week1 = new Date(date.getFullYear(), 0, 4);
+      // Adjust to Thursday in week 1 and count number of weeks from date to week1.
+      let week = 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000
+        - 3 + (week1.getDay() + 6) % 7) / 7);
+    console.log('week ', week);
+
+    return week;
   }
 
   calcGraph(): void {
@@ -393,5 +411,6 @@ export class HomeComponent implements OnInit {
     console.log('Direction History');
     this.router.navigate(['history']);
   }
+
 
 }
