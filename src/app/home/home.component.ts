@@ -265,23 +265,45 @@ export class HomeComponent implements OnInit {
 
     const newEndDate = new Date(this.endDate);
     const newStartDate = new Date(this.startDate);
+
     const newTodayDate = new Date();
 
     const one_day = 1000 * 60 * 60 * 24;
 
     newEndDate.setHours(1,0,0,0);
     newTodayDate.setHours(1,0,0,0);
+    newStartDate.setHours(1,0,0,0);
 
     // Le nombre de jour qui reste c'est :
     // Le nombre de jour total - le nombre de jours de weekend - le nombre de jour passés sans les weekends
 
     let todayWeekNumber = this.calcWeek(newTodayDate);
     let starWeekNumber = this.calcWeek(newStartDate);
-    let daysPassed = Math.ceil( (newTodayDate.getTime() - newStartDate.getTime()) / one_day ) - ((todayWeekNumber - starWeekNumber )*2);
+    let daysPassed = Math.ceil(
+      ((newTodayDate.getTime() - (newStartDate.getTime() - one_day)) / one_day ))
+      - ((todayWeekNumber - starWeekNumber )*2);
 
-    let totaldays = Math.ceil( (newEndDate.getTime() - newStartDate.getTime()) / one_day ) ;
+    // console.log('todayWeekNumber', todayWeekNumber);
+    // console.log('starWeekNumber', starWeekNumber);
+    // console.log('daysPassed', daysPassed);
+    //
+    // console.log('newTodayDate.getTime()', newTodayDate.getDate());
+    // console.log('newTodayDate.getTime()', newTodayDate.getTime() /one_day);
+    //
+    // console.log('newStartDate.getTime()', newStartDate.getDate());
+    // console.log('newStartDate.getTime()', Math.ceil(newStartDate.getTime() /one_day));
+    //
+    // console.log('(newTodayDate.getTime() - newStartDate.getTime()) / one_day )',
+    //   ((newTodayDate.getTime() - (newStartDate.getTime() - one_day)) / one_day ));
+    // console.log('((todayWeekNumber - starWeekNumber )*2)', ((todayWeekNumber - starWeekNumber )*2));
 
-    this.daysLeft = totaldays - (this.nbrWeeks * 2) - daysPassed;
+    let minusEndStart = newEndDate.getTime() - newStartDate.getTime();
+    let totaldays = Math.ceil( minusEndStart / one_day );
+
+
+    console.log('totaldays', totaldays);
+
+    this.daysLeft = totaldays - (this.nbrWeeks * 2) - (daysPassed);
     console.log('days calc apres', this.daysLeft);
 
   }
