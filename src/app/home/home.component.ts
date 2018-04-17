@@ -385,6 +385,7 @@ export class HomeComponent implements OnInit {
   }
 
   verifDiffDoneAdd() : void {
+
     this.dataDiffDoneAdd
     for (let i = this.dataDiffDoneAdd.length -1; i>0; i--) {
       if (i === this.daysLeft) {

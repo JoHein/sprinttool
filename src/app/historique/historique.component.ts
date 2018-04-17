@@ -80,23 +80,15 @@ export class HistoriqueComponent implements OnInit {
       valueLine.push(tempValue);
     }
 
-    console.log('valuline', valueLine);
-
-    console.log('dataopentabdone',dataopentabdone);
     for( let i = dataopentabdone.length -1 ; i >= 0; i--) {
-      console.log('dataopentabdone',i);
-      displayDiffDone.push(dataopentabdone[i].add_done);
+
+      if (dataopentabdone[i].add_done === null){
+
+        displayDiffDone.push(dataopentabdone[i+1].add_done);
+      }else {
+        displayDiffDone.push(dataopentabdone[i].add_done);
+      }
     }
-
-    for (let i = displayDiffDone.length -1; i>0; i--) {
-
-        if (displayDiffDone[i].add_done === null) {
-          displayDiffDone[i].add_done = displayDiffDone[i-1].add_done;
-        }
-
-    }
-
-    console.log('dataopentabdone',displayDiffDone.length);
 
  let data = {
       labels: dataLabels,
@@ -125,6 +117,27 @@ export class HistoriqueComponent implements OnInit {
 
     this.listDataGraph[index] = (data);
   }
+
+  // verifDiffDoneAdd() : void {
+  //
+  //   this.dataDiffDoneAdd
+  //   for (let i = this.dataDiffDoneAdd.length -1; i>0; i--) {
+  //     if (i === this.daysLeft) {
+  //       break;
+  //     } else {
+  //       if (this.dataDiffDoneAdd[i].add_done === null) {
+  //         console.log('ENTER IF NULL', this.dataDiffDoneAdd[i] );
+  //
+  //         this.dataDiffDoneAdd[i].add_done = this.dataDiffDoneAdd[i+1].add_done;
+  //
+  //         this.db.query('UPDATE sprint_diffdone SET add_done = '+ this.dataDiffDoneAdd[i].add_done +'' +
+  //           ' WHERE diffdone_sprintid = '+ this.returnQueryInitSprint[0].sprintid +' and days='+ i +'' );
+  //       }
+  //     }
+  //   }
+  //   console.log('after verif', this.dataDiffDoneAdd );
+  //
+  // }
 
   deleteSprint(id: number): void {
     console.log('delete Id', id);
